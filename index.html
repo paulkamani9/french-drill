@@ -66,9 +66,13 @@
       <p class="consigne" id="consigne">Écris ce nombre en toutes lettres</p>
       <p id="nombre" class="nombre">0</p>
 
-      <input id="reponse" class="reponse" type="text" autocomplete="off" autocapitalize="off"
-             autocorrect="off" spellcheck="false" placeholder="tape ta réponse ici…"
-             aria-label="Ta réponse en toutes lettres">
+      <div class="saisie">
+        <input id="reponse" class="reponse" type="text" autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false" placeholder="tape ta réponse ici…"
+               aria-label="Ta réponse en toutes lettres">
+        <button id="btn-tiret" class="touche" type="button"
+                title="Insérer un trait d'union" aria-label="Insérer un trait d'union">-</button>
+      </div>
 
       <div id="verdict" class="verdict" role="status" aria-live="polite"></div>
 
