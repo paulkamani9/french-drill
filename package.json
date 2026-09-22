@@ -1,0 +1,11 @@
+{
+  "name": "chiffrator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dictée de nombres en français : écris les nombres en toutes lettres.",
+  "type": "module",
+  "scripts": {
+    "test": "node test/converter.test.mjs",
+    "dev": "npx http-server -p 8123 ."
+  }
+}
