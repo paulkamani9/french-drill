@@ -32,6 +32,33 @@ et la progression est gardée d'une session à l'autre.
 
 La liste vit dans `src/parcours.js`.
 
+## Parti pris d'interface
+
+Le jeu se joue surtout au pouce, sur un téléphone, et la frappe est longue :
+`quatre-vingt-dix-neuf` fait vingt caractères. L'interface est donc construite
+autour du clavier virtuel.
+
+- **La coque suit le clavier.** `--clavier` est tenue à jour depuis
+  `visualViewport` (iOS décale la fenêtre visuelle, Android rétrécit la mise en
+  page) et raccourcit la coque d'autant, en complément de
+  `interactive-widget=resizes-content`. La zone de frappe reste collée
+  au-dessus du clavier, le nombre à écrire reste visible.
+- **Le clavier ne se referme jamais entre deux nombres.** Les boutons de la
+  zone de frappe annulent leur `mousedown` : le champ ne perd pas le focus, donc
+  aucun appui supplémentaire pour enchaîner.
+- **Le champ grandit avec la réponse.** C'est une zone de texte qui passe à la
+  ligne : une réponse de quatre-vingts caractères reste lisible en entier au
+  lieu de défiler hors du champ. Entrée valide, sans insérer de saut de ligne.
+- **La correction s'affiche au-dessus du champ**, donc jamais sous le clavier.
+  Le nombre s'accroche en haut quand ça défile.
+- **Mode compact** sous 520 px de hauteur visible : les statistiques et la
+  consigne s'effacent, le nombre rétrécit, et sur une erreur le clavier se
+  retire pour rendre l'écran à la lecture — il revient au nombre suivant, sans
+  appui de plus, parce que le focus est repris dans le geste qui appuie sur
+  « Nombre suivant ».
+- Cibles tactiles de 44 px minimum, champs à 16 px au moins (sinon iOS zoome),
+  correction automatique et majuscules désactivées.
+
 ## Règles d'orthographe appliquées
 
 - 0–16 en un mot, puis `dix-sept`, `dix-huit`, `dix-neuf`.
