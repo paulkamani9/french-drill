@@ -24,7 +24,12 @@
       <p class="sous-titre">Écris les nombres en toutes lettres. Sans faute. Sans pitié.</p>
     </header>
 
-    <div class="carte">
+    <div class="modes">
+      <button id="mode-libre" class="mode actif" type="button">🎲 Aléatoire</button>
+      <button id="mode-parcours" class="mode" type="button">🧗 Parcours</button>
+    </div>
+
+    <div id="bloc-libre" class="carte">
       <h2 class="carte-titre">① Choisis ta plage</h2>
       <div id="presets" class="presets"></div>
 
@@ -45,6 +50,15 @@
       <button id="btn-demarrer" class="btn btn-jouer" type="button">Commencer !</button>
     </div>
 
+    <div id="bloc-parcours" class="carte" hidden>
+      <h2 class="carte-titre">Les nombres qui font trébucher, du plus simple au plus retors</h2>
+      <div id="paliers" class="paliers"></div>
+      <p class="aide">Aucun tirage au hasard : chaque palier se joue dans l'ordre. Un nombre
+        raté revient plus loin dans le palier, jusqu'à ce qu'il soit écrit juste. Le palier
+        suivant s'ouvre quand le précédent est bouclé.</p>
+      <button id="btn-oublier" class="btn btn-fantome" type="button">Effacer ma progression</button>
+    </div>
+
     <p class="pied">Orthographe traditionnelle <em>et</em> rectifiée de 1990 acceptées&nbsp;— «&nbsp;vingt et un&nbsp;» comme «&nbsp;vingt-et-un&nbsp;».</p>
   </section>
 
@@ -55,6 +69,15 @@
       <div class="hud-item"><span class="hud-val" id="stat-total">0</span><span class="hud-lib">essais</span></div>
       <div class="hud-item hud-serie"><span class="hud-val" id="stat-serie">0</span><span class="hud-lib">série 🔥</span></div>
       <div class="hud-item"><span class="hud-val" id="stat-record">0</span><span class="hud-lib">record 🏆</span></div>
+    </div>
+
+    <div id="bandeau-palier" class="bandeau-palier" hidden>
+      <div class="bandeau-haut">
+        <span id="palier-titre" class="palier-titre"></span>
+        <span id="palier-compte" class="palier-compte"></span>
+      </div>
+      <div class="jauge jauge-mince"><div id="palier-barre" class="jauge-barre palier-barre"></div></div>
+      <p id="palier-resume" class="palier-resume"></p>
     </div>
 
     <div class="jauge-bloc">
@@ -80,6 +103,14 @@
         <button id="btn-valider" class="btn btn-jouer" type="button">Vérifier</button>
         <button id="btn-reveler" class="btn btn-fantome" type="button">Révéler la réponse</button>
       </div>
+    </div>
+
+    <div id="carte-fin" class="carte carte-fin" hidden>
+      <p id="fin-emoji" class="fin-emoji">🏅</p>
+      <h2 id="fin-titre" class="fin-titre"></h2>
+      <p id="fin-detail" class="fin-detail"></p>
+      <button id="btn-palier-suivant" class="btn btn-jouer" type="button">Palier suivant →</button>
+      <button id="btn-rejouer" class="btn btn-fantome" type="button">Refaire ce palier</button>
     </div>
 
     <button id="btn-retour" class="btn btn-lien" type="button">← Changer la plage</button>

@@ -112,6 +112,89 @@ body {
 }
 .carte-titre + * + .carte-titre { margin-top: 22px; }
 
+/* Onglets de mode */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+.mode {
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 13px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--bord);
+  background: rgba(255, 255, 255, .05);
+  color: var(--doux);
+  transition: transform .12s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+.mode:hover { transform: translateY(-2px); color: var(--texte); }
+.mode.actif {
+  color: #1a0530;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  box-shadow: 0 8px 22px rgba(139, 92, 246, .38);
+}
+
+/* Liste des paliers */
+.paliers { display: flex; flex-direction: column; gap: 10px; }
+
+.palier {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  padding: 13px 15px;
+  border-radius: 16px;
+  border: 1px solid var(--bord);
+  background: rgba(255, 255, 255, .05);
+  color: var(--texte);
+  transition: transform .12s ease, border-color .18s ease, background .18s ease;
+}
+.palier:hover:not(.verrouille) { transform: translateY(-2px); border-color: var(--cyan); background: rgba(34, 224, 255, .1); }
+.palier.verrouille { cursor: not-allowed; opacity: .45; }
+.palier.fini { border-color: rgba(53, 224, 138, .5); }
+
+.palier-num {
+  flex: 0 0 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: 'Space Grotesk', monospace;
+  font-weight: 700;
+  background: rgba(0, 0, 0, .35);
+  border: 1px solid var(--bord);
+}
+.palier.fini .palier-num { background: linear-gradient(135deg, var(--vert), var(--cyan)); color: #052018; border-color: transparent; }
+.palier-corps { flex: 1; min-width: 0; }
+.palier-nom { display: block; font-weight: 600; }
+.palier-info { display: block; font-size: .78rem; color: var(--doux); margin-top: 2px; }
+.palier-etat { flex: 0 0 auto; font-size: 1.1rem; }
+
+/* Bandeau de palier, en jeu */
+.bandeau-palier {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--bord);
+  background: rgba(255, 255, 255, .05);
+}
+.bandeau-haut { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.palier-titre { font-weight: 600; }
+.palier-compte { font-family: 'Space Grotesk', monospace; font-size: .85rem; color: var(--doux); white-space: nowrap; }
+.jauge-mince { height: 8px; }
+/* Plus spécifique que .jauge-barre, défini plus bas. */
+.bandeau-palier .palier-barre { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+.palier-resume { margin: 8px 0 0; font-size: .78rem; color: var(--doux); }
+
+/* Panneau de fin de palier */
+.carte-fin { text-align: center; }
+.fin-emoji { font-size: 3rem; margin: 0; animation: pop .6s ease; }
+.fin-titre { margin: 6px 0 4px; font-size: 1.5rem; }
+.fin-detail { margin: 0; color: var(--doux); font-size: .95rem; }
+
 /* Presets */
 .presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
 

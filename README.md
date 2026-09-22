@@ -17,6 +17,21 @@ npm run dev   # http://127.0.0.1:8123
 npm test
 ```
 
+## Deux modes
+
+**Aléatoire** — on choisit une plage (présélections ou bornes libres) et les
+nombres tombent au hasard dedans.
+
+**Parcours** — une liste fixe de 77 nombres pièges, répartis en cinq paliers
+qui vont du plus simple au plus retors : les dizaines pièges, les centaines,
+les milliers, les millions, puis un grand final qui mélange tout. Rien n'est
+tiré au hasard : l'ordre de la liste *est* la difficulté. Un nombre raté
+repasse dans la file quelques places plus loin, donc il faut l'écrire juste
+pour boucler le palier. Le palier suivant s'ouvre quand le précédent est fini,
+et la progression est gardée d'une session à l'autre.
+
+La liste vit dans `src/parcours.js`.
+
 ## Règles d'orthographe appliquées
 
 - 0–16 en un mot, puis `dix-sept`, `dix-huit`, `dix-neuf`.
