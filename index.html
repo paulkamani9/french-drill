@@ -2,10 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b0620">
 <title>Chiffrator — la dictée de nombres en français</title>
 <meta name="description" content="Jeu d'entraînement : écris les nombres en toutes lettres en français.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -14,62 +17,65 @@
 <body>
 <div class="stars" aria-hidden="true"></div>
 
-<main class="shell">
+<div class="appli">
 
   <!-- ÉCRAN D'ACCUEIL -->
-  <section id="ecran-accueil" class="ecran">
-    <header class="titre-bloc">
-      <p class="kicker">jeu d'entraînement</p>
-      <h1 class="titre">CHIFFR<span>A</span>TOR</h1>
-      <p class="sous-titre">Écris les nombres en toutes lettres. Sans faute. Sans pitié.</p>
-    </header>
+  <section id="ecran-accueil" class="ecran ecran-defile">
+    <div class="colonne">
+      <header class="titre-bloc">
+        <h1 class="titre">CHIFFR<span>A</span>TOR</h1>
+        <p class="sous-titre">Écris les nombres en toutes lettres.</p>
+      </header>
 
-    <div class="modes">
-      <button id="mode-libre" class="mode actif" type="button">🎲 Aléatoire</button>
-      <button id="mode-parcours" class="mode" type="button">🧗 Parcours</button>
-    </div>
-
-    <div id="bloc-libre" class="carte">
-      <h2 class="carte-titre">① Choisis ta plage</h2>
-      <div id="presets" class="presets"></div>
-
-      <h2 class="carte-titre">② Ou fixe tes bornes</h2>
-      <div class="bornes">
-        <label class="champ">
-          <span>Minimum</span>
-          <input id="min" type="number" inputmode="numeric" min="0" max="1000000000" value="1">
-        </label>
-        <span class="fleche" aria-hidden="true">→</span>
-        <label class="champ">
-          <span>Maximum</span>
-          <input id="max" type="number" inputmode="numeric" min="0" max="1000000000" value="100">
-        </label>
+      <div class="modes" role="tablist" aria-label="Mode de jeu">
+        <button id="mode-libre" class="mode actif" type="button" role="tab" aria-selected="true">🎲 Aléatoire</button>
+        <button id="mode-parcours" class="mode" type="button" role="tab" aria-selected="false">🧗 Parcours</button>
       </div>
-      <p class="aide">De 0 à 1<span class="nb"> </span>000<span class="nb"> </span>000<span class="nb"> </span>000. Les bornes sont remises dans l'ordre toutes seules.</p>
 
-      <button id="btn-demarrer" class="btn btn-jouer" type="button">Commencer !</button>
+      <div id="bloc-libre" class="carte">
+        <h2 class="carte-titre">Choisis ta plage</h2>
+        <div id="presets" class="presets"></div>
+
+        <h2 class="carte-titre carte-titre-espace">Ou fixe tes bornes</h2>
+        <div class="bornes">
+          <label class="champ">
+            <span>Minimum</span>
+            <input id="min" type="number" inputmode="numeric" enterkeyhint="go" min="0" max="1000000000" value="1">
+          </label>
+          <span class="fleche" aria-hidden="true">→</span>
+          <label class="champ">
+            <span>Maximum</span>
+            <input id="max" type="number" inputmode="numeric" enterkeyhint="go" min="0" max="1000000000" value="100">
+          </label>
+        </div>
+        <p class="aide">De 0 à 1<span class="nb"> </span>000<span class="nb"> </span>000<span class="nb"> </span>000. Les bornes se remettent dans l'ordre toutes seules.</p>
+
+        <button id="btn-demarrer" class="btn btn-principal" type="button">Commencer</button>
+      </div>
+
+      <div id="bloc-parcours" class="carte" hidden>
+        <h2 class="carte-titre">Du plus simple au plus retors</h2>
+        <div id="paliers" class="paliers"></div>
+        <p class="aide">Aucun tirage au hasard : chaque palier se joue dans l'ordre. Un nombre
+          raté revient plus loin, jusqu'à ce qu'il soit écrit juste.</p>
+        <button id="btn-oublier" class="lien-discret" type="button">Effacer ma progression</button>
+      </div>
+
+      <p class="pied">Orthographe traditionnelle <em>et</em> rectifiée de 1990 acceptées&nbsp;—
+        «&nbsp;vingt et un&nbsp;» comme «&nbsp;vingt-et-un&nbsp;».</p>
     </div>
-
-    <div id="bloc-parcours" class="carte" hidden>
-      <h2 class="carte-titre">Les nombres qui font trébucher, du plus simple au plus retors</h2>
-      <div id="paliers" class="paliers"></div>
-      <p class="aide">Aucun tirage au hasard : chaque palier se joue dans l'ordre. Un nombre
-        raté revient plus loin dans le palier, jusqu'à ce qu'il soit écrit juste. Le palier
-        suivant s'ouvre quand le précédent est bouclé.</p>
-      <button id="btn-oublier" class="btn btn-fantome" type="button">Effacer ma progression</button>
-    </div>
-
-    <p class="pied">Orthographe traditionnelle <em>et</em> rectifiée de 1990 acceptées&nbsp;— «&nbsp;vingt et un&nbsp;» comme «&nbsp;vingt-et-un&nbsp;».</p>
   </section>
 
   <!-- ÉCRAN DE JEU -->
-  <section id="ecran-jeu" class="ecran" hidden>
-    <div class="hud">
-      <div class="hud-item"><span class="hud-val" id="stat-correct">0</span><span class="hud-lib">bonnes</span></div>
-      <div class="hud-item"><span class="hud-val" id="stat-total">0</span><span class="hud-lib">essais</span></div>
-      <div class="hud-item hud-serie"><span class="hud-val" id="stat-serie">0</span><span class="hud-lib">série 🔥</span></div>
-      <div class="hud-item"><span class="hud-val" id="stat-record">0</span><span class="hud-lib">record 🏆</span></div>
-    </div>
+  <section id="ecran-jeu" class="ecran ecran-partie" hidden>
+
+    <header class="barre">
+      <button id="btn-retour" class="icone" type="button" aria-label="Revenir à l'écran de départ">←</button>
+      <p id="plage-active" class="barre-titre"></p>
+      <button id="btn-reveler" class="icone" type="button"
+              title="Révéler la réponse" aria-label="Révéler la réponse">👀</button>
+      <p class="barre-serie" title="Série en cours"><span id="stat-serie">0</span>&#8239;🔥</p>
+    </header>
 
     <div id="bandeau-palier" class="bandeau-palier" hidden>
       <div class="bandeau-haut">
@@ -80,44 +86,50 @@
       <p id="palier-resume" class="palier-resume"></p>
     </div>
 
-    <div class="jauge-bloc">
-      <div class="jauge"><div id="jauge-barre" class="jauge-barre"></div></div>
-      <span id="jauge-txt" class="jauge-txt">Précision : —</span>
+    <div class="stats">
+      <span class="stat"><b id="stat-correct">0</b> bonnes</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span class="stat"><b id="stat-total">0</b> essais</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span class="stat"><b id="stat-record">0</b> record&#8239;🏆</span>
+      <span id="jauge-txt" class="stat stat-fin">Précision&nbsp;: —</span>
     </div>
+    <div class="jauge jauge-mince jauge-precision"><div id="jauge-barre" class="jauge-barre"></div></div>
 
-    <div id="carte-jeu" class="carte carte-jeu">
-      <p class="consigne" id="consigne">Écris ce nombre en toutes lettres</p>
-      <p id="nombre" class="nombre">0</p>
-
-      <div class="saisie">
-        <input id="reponse" class="reponse" type="text" autocomplete="off" autocapitalize="off"
-               autocorrect="off" spellcheck="false" placeholder="tape ta réponse ici…"
-               aria-label="Ta réponse en toutes lettres">
-        <button id="btn-tiret" class="touche" type="button"
-                title="Insérer un trait d'union" aria-label="Insérer un trait d'union">-</button>
+    <main id="carte-jeu" class="scene">
+      <div class="scene-corps">
+        <div class="scene-tete">
+          <p class="consigne" id="consigne">Écris ce nombre en toutes lettres</p>
+          <p id="nombre" class="nombre">0</p>
+        </div>
+        <div id="verdict" class="verdict" role="status" aria-live="polite"></div>
       </div>
+    </main>
 
-      <div id="verdict" class="verdict" role="status" aria-live="polite"></div>
-
-      <div class="actions">
-        <button id="btn-valider" class="btn btn-jouer" type="button">Vérifier</button>
-        <button id="btn-reveler" class="btn btn-fantome" type="button">Révéler la réponse</button>
-      </div>
-    </div>
-
-    <div id="carte-fin" class="carte carte-fin" hidden>
+    <div id="carte-fin" class="scene carte-fin" hidden>
       <p id="fin-emoji" class="fin-emoji">🏅</p>
       <h2 id="fin-titre" class="fin-titre"></h2>
       <p id="fin-detail" class="fin-detail"></p>
-      <button id="btn-palier-suivant" class="btn btn-jouer" type="button">Palier suivant →</button>
-      <button id="btn-rejouer" class="btn btn-fantome" type="button">Refaire ce palier</button>
+      <div class="fin-actions">
+        <button id="btn-palier-suivant" class="btn btn-principal" type="button">Palier suivant →</button>
+        <button id="btn-rejouer" class="lien-discret" type="button">Refaire ce palier</button>
+      </div>
     </div>
 
-    <button id="btn-retour" class="btn btn-lien" type="button">← Changer la plage</button>
-    <p id="plage-active" class="pied"></p>
+    <div id="quai" class="quai">
+      <div class="saisie">
+        <textarea id="reponse" class="reponse" rows="1" autocomplete="off" autocapitalize="off"
+                  autocorrect="off" spellcheck="false" enterkeyhint="go" inputmode="text"
+                  placeholder="ta réponse…" aria-label="Ta réponse en toutes lettres"></textarea>
+        <button id="btn-tiret" class="touche" type="button"
+                title="Insérer un trait d'union" aria-label="Insérer un trait d'union">-</button>
+      </div>
+      <button id="btn-valider" class="btn btn-principal" type="button">Vérifier</button>
+    </div>
+
   </section>
 
-</main>
+</div>
 
 <script type="module" src="app.js"></script>
 </body>

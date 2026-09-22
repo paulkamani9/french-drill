@@ -26,8 +26,8 @@ const el = {
   paliers: $('paliers'), oublier: $('btn-oublier'),
   nombre: $('nombre'), reponse: $('reponse'), verdict: $('verdict'),
   valider: $('btn-valider'), reveler: $('btn-reveler'), retour: $('btn-retour'),
-  tiret: $('btn-tiret'), consigne: $('consigne'),
-  carteJeu: $('carte-jeu'), plageActive: $('plage-active'),
+  tiret: $('btn-tiret'), consigne: $('consigne'), quai: $('quai'),
+  scene: $('carte-jeu'), plageActive: $('plage-active'),
   bandeau: $('bandeau-palier'), palierTitre: $('palier-titre'),
   palierCompte: $('palier-compte'), palierBarre: $('palier-barre'),
   palierResume: $('palier-resume'),
@@ -37,6 +37,10 @@ const el = {
   statSerie: $('stat-serie'), statRecord: $('stat-record'),
   jaugeBarre: $('jauge-barre'), jaugeTxt: $('jauge-txt'),
 };
+el.saisie = el.reponse.parentElement;
+el.serie = el.statSerie.parentElement;
+const coque = document.querySelector('.appli');
+el.corps = el.scene.querySelector('.scene-corps');
 
 const etat = {
   mode: 'libre', // 'libre' | 'parcours'
@@ -67,12 +71,57 @@ const memoire = {
 const CLE_RECORD = 'chiffrator.record';
 const CLE_PARCOURS = 'chiffrator.parcours'; // nombre de paliers bouclés
 
+/* ---------- Clavier virtuel ---------- */
+
+// iOS décale la fenêtre visuelle, Android rétrécit la mise en page : dans les
+// deux cas, --clavier donne la hauteur cachée et la coque se raccourcit d'autant.
+const vue = window.visualViewport;
+if (vue) {
+  const majClavier = () => {
+    const cache = Math.max(0, window.innerHeight - vue.height - vue.offsetTop);
+    document.documentElement.style.setProperty('--clavier', `${Math.round(cache)}px`);
+    majCompact();
+  };
+  vue.addEventListener('resize', majClavier);
+  vue.addEventListener('scroll', majClavier);
+  majClavier();
+}
+
+// Un bouton du quai ne doit jamais voler le focus au champ : sinon le clavier
+// se referme entre deux nombres, et il faut retaper dans le champ à chaque fois.
+// Sous une certaine hauteur visible, on passe en mode compact : le nombre et
+// la correction priment sur les statistiques.
+function majCompact() {
+  const visible = coque.clientHeight || window.innerHeight;
+  document.body.classList.toggle('compact', visible < 520);
+  // Le champ ne doit jamais manger la place du nombre : il défile au-delà.
+  const plafond = `${Math.max(56, Math.round(visible * 0.3))}px`;
+  if (el.reponse.style.maxHeight !== plafond) {
+    el.reponse.style.maxHeight = plafond;
+    ajusterHauteur();
+  }
+  majDefilement();
+}
+
+// La coque change de hauteur dès que --clavier bouge : l'observer évite de
+// dépendre d'un évènement particulier (les navigateurs ne s'accordent pas).
+if (window.ResizeObserver) new ResizeObserver(majCompact).observe(coque);
+window.addEventListener('resize', majCompact);
+
+// Le changement de focus se joue au mousedown — y compris le mousedown
+// synthétisé après un appui tactile — donc l'annuler suffit sur mobile aussi.
+[el.valider, el.reveler, el.tiret].forEach((bouton) => {
+  bouton.addEventListener('mousedown', (e) => e.preventDefault());
+});
+
 /* ---------- Choix du mode ---------- */
 
 function choisirMode(mode) {
   etat.mode = mode;
   el.modeLibre.classList.toggle('actif', mode === 'libre');
   el.modeParcours.classList.toggle('actif', mode === 'parcours');
+  el.modeLibre.setAttribute('aria-selected', String(mode === 'libre'));
+  el.modeParcours.setAttribute('aria-selected', String(mode === 'parcours'));
   el.blocLibre.hidden = mode !== 'libre';
   el.blocParcours.hidden = mode !== 'parcours';
   if (mode === 'parcours') dessinerPaliers();
@@ -134,8 +183,10 @@ function remiseAZeroStats() {
 function ouvrirJeu() {
   el.accueil.hidden = true;
   el.jeu.hidden = false;
-  el.carteJeu.hidden = false;
+  el.scene.hidden = false;
+  el.quai.hidden = false;
   el.carteFin.hidden = true;
+  majCompact();
   majStats();
 }
 
@@ -148,8 +199,7 @@ function demarrer() {
   el.max.value = String(max);
   remiseAZeroStats();
   el.bandeau.hidden = true;
-  el.retour.textContent = '← Changer la plage';
-  el.plageActive.textContent = `Plage : ${formatDigits(min)} → ${formatDigits(max)}`;
+  el.plageActive.textContent = `${formatDigits(min)} → ${formatDigits(max)}`;
   ouvrirJeu();
   nouveauNombre();
 }
@@ -179,7 +229,7 @@ function dessinerPaliers() {
     b.querySelector('.palier-info').textContent =
       `${palier.nombres.length} nombres · ${palier.resume}`;
     if (verrouille) b.title = 'Boucle le palier précédent pour l\'ouvrir';
-    if (!verrouille) b.addEventListener('click', () => demarrerPalier(i));
+    else b.addEventListener('click', () => demarrerPalier(i));
     el.paliers.appendChild(b);
   });
 }
@@ -203,8 +253,7 @@ function demarrerPalier(index) {
   el.bandeau.hidden = false;
   el.palierTitre.textContent = `Palier ${index + 1} · ${palier.titre}`;
   el.palierResume.textContent = palier.resume;
-  el.retour.textContent = '← Choisir un palier';
-  el.plageActive.textContent = `Parcours — palier ${index + 1} sur ${PALIERS.length}`;
+  el.plageActive.textContent = `Parcours — palier ${index + 1}/${PALIERS.length}`;
   majPalier();
   ouvrirJeu();
   nouveauNombre();
@@ -218,6 +267,7 @@ function majPalier() {
 
 el.retour.addEventListener('click', () => {
   clearTimeout(etat.minuteur);
+  el.reponse.blur();
   el.jeu.hidden = true;
   el.accueil.hidden = false;
   choisirMode(etat.mode);
@@ -257,13 +307,13 @@ function nouveauNombre() {
     : 'Écris ce nombre en toutes lettres';
   el.nombre.textContent = formatDigits(n);
   el.verdict.innerHTML = '';
-  el.carteJeu.classList.remove('faux', 'juste');
-  el.reponse.value = '';
-  el.reponse.disabled = false;
-  el.tiret.disabled = false;
+  el.scene.classList.remove('faux', 'juste', 'corrige');
+  el.saisie.classList.remove('faux', 'juste');
+  viderChamp();
   el.reveler.disabled = false;
   el.valider.textContent = 'Vérifier';
   el.valider.classList.remove('suivant');
+  majDefilement();
   el.reponse.focus();
 }
 
@@ -274,14 +324,44 @@ function remettreDansLaFile(n) {
   etat.file.splice(Math.min(RETOUR_FILE, etat.file.length), 0, n);
 }
 
-/* ---------- Correction ---------- */
-
-function bloquerSaisie() {
-  etat.phase = 'resolu';
-  el.reponse.disabled = true;
-  el.tiret.disabled = true;
-  el.reveler.disabled = true;
+// Le fond de l'entête collante ne sert que si la scène déborde vraiment.
+function majDefilement() {
+  // On mesure le contenu, pas la scène : ses marges automatiques de centrage
+  // gonflent scrollHeight et feraient croire à un débordement permanent.
+  el.scene.classList.toggle('defile', el.corps.scrollHeight > el.scene.clientHeight + 1);
 }
+
+// Sur un écran court, la correction peut dépasser : on montre le bas, donc la
+// bonne orthographe. Le nombre, lui, reste épinglé en haut.
+// Et si l'écran est vraiment court, le clavier s'efface : on ne tape plus, on
+// lit — il reviendra au prochain nombre, sans tapotement supplémentaire, parce
+// que le focus est repris dans le geste qui appuie sur « Nombre suivant ».
+function montrerCorrection() {
+  if (document.body.classList.contains('compact')) el.reponse.blur();
+  majDefilement();
+  el.scene.scrollTop = el.scene.scrollHeight;
+}
+window.addEventListener('resize', majDefilement);
+
+/* ---------- Champ de réponse ---------- */
+
+// Le champ grandit avec le texte : sur un long nombre, la réponse reste
+// lisible en entier au lieu de défiler hors de vue.
+function ajusterHauteur() {
+  const style = getComputedStyle(el.reponse);
+  const bordures = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+  el.reponse.style.height = 'auto';
+  el.reponse.style.height = `${el.reponse.scrollHeight + bordures}px`;
+}
+
+function viderChamp() {
+  el.reponse.value = '';
+  ajusterHauteur();
+}
+
+el.reponse.addEventListener('input', ajusterHauteur);
+
+/* ---------- Correction ---------- */
 
 function valider() {
   if (etat.phase === 'resolu') { clearTimeout(etat.minuteur); nouveauNombre(); return; }
@@ -290,6 +370,9 @@ function valider() {
 
   const res = checkAnswer(etat.nombre, saisie);
   etat.total += 1;
+  etat.phase = 'resolu';
+  el.reveler.disabled = true;
+  viderChamp();               // la réponse est rejouée dans la correction
 
   if (res.correct) {
     etat.correct += 1;
@@ -299,10 +382,11 @@ function valider() {
       memoire.ecrire(CLE_RECORD, etat.record);
     }
     if (etat.mode === 'parcours') { etat.faits += 1; majPalier(); }
-    bloquerSaisie();
-    el.carteJeu.classList.add('juste');
-    el.verdict.innerHTML = `<p class="bandeau ok">${bravo()}</p>`;
+    el.scene.classList.add('juste');
+    el.saisie.classList.add('juste');
+    el.verdict.innerHTML = `<p class="bandeau-verdict ok">${bravo()}</p>`;
     majStats(true);
+    majDefilement();
     etat.minuteur = setTimeout(nouveauNombre, DELAI_SUIVANT);
     return;
   }
@@ -318,9 +402,9 @@ const BRAVOS = ['Bravo ! 🎉', 'Parfait ! ✨', 'Sans faute ! 💯', 'Excellent
 const bravo = () => BRAVOS[Math.floor(Math.random() * BRAVOS.length)];
 
 function afficherErreur(saisie, attendu, indexFaute) {
-  bloquerSaisie();
-  el.carteJeu.classList.remove('juste');
-  el.carteJeu.classList.add('faux');
+  el.scene.classList.remove('juste');
+  el.scene.classList.add('faux', 'corrige');
+  el.saisie.classList.add('faux');
 
   const bon = saisie.slice(0, indexFaute);
   const mauvais = saisie.slice(indexFaute);
@@ -329,13 +413,13 @@ function afficherErreur(saisie, attendu, indexFaute) {
     : '<span class="manque">réponse incomplète</span>';
 
   el.verdict.innerHTML = `
-    <p class="bandeau ko">Raté ! ✗</p>
+    <p class="bandeau-verdict ko">Raté ! ✗</p>
     <p class="ligne"><span class="ligne-lib">Ta réponse</span>${echapper(bon)}${marque}</p>
     <p class="ligne"><span class="ligne-lib">La bonne orthographe</span><span class="bonne">${echapper(attendu)}</span></p>`;
 
   el.valider.textContent = 'Nombre suivant →';
   el.valider.classList.add('suivant');
-  el.valider.focus();
+  montrerCorrection();
 }
 
 function echapper(s) {
@@ -348,15 +432,19 @@ function reveler() {
   etat.total += 1;        // une révélation compte comme une erreur
   etat.serie = 0;
   etat.fautes += 1;
+  etat.phase = 'resolu';
+  el.reveler.disabled = true;
+  viderChamp();
   remettreDansLaFile(etat.nombre);
-  bloquerSaisie();
-  el.carteJeu.classList.add('faux');
+  el.scene.classList.add('faux', 'corrige');
+  el.saisie.classList.add('faux');
   el.verdict.innerHTML = `
-    <p class="bandeau ko">Réponse révélée 👀</p>
+    <p class="bandeau-verdict ko">Réponse révélée 👀</p>
     <p class="ligne"><span class="ligne-lib">La bonne orthographe</span><span class="bonne">${echapper(numberToFrenchWords(etat.nombre))}</span></p>`;
   el.valider.textContent = 'Nombre suivant →';
   el.valider.classList.add('suivant');
   majStats();
+  montrerCorrection();
 }
 
 /* ---------- Fin de palier ---------- */
@@ -366,9 +454,11 @@ function finirPalier() {
   const total = PALIERS[etat.palier].nombres.length;
   etat.phase = 'resolu';
   clearTimeout(etat.minuteur);
+  el.reponse.blur();
   if (etat.palier + 1 > paliersBoucles()) memoire.ecrire(CLE_PARCOURS, etat.palier + 1);
 
-  el.carteJeu.hidden = true;
+  el.scene.hidden = true;
+  el.quai.hidden = true;
   el.carteFin.hidden = false;
   el.finEmoji.textContent = dernier ? '🏆' : '🏅';
   el.finTitre.textContent = dernier ? 'Parcours terminé !' : 'Palier bouclé !';
@@ -376,7 +466,6 @@ function finirPalier() {
     ? `${total} nombres, aucune faute. Impressionnant.`
     : `${total} nombres écrits juste, en ${etat.total} réponses (${etat.fautes} ${etat.fautes > 1 ? 'fautes' : 'faute'}).`;
   el.palierSuivant.hidden = dernier;
-  el.palierSuivant.focus();
 }
 
 el.palierSuivant.addEventListener('click', () => {
@@ -391,7 +480,7 @@ function majStats(animer = false) {
   el.statTotal.textContent = String(etat.total);
   el.statSerie.textContent = String(etat.serie);
   el.statRecord.textContent = String(etat.record);
-  el.statSerie.parentElement.classList.toggle('chaud', etat.serie >= 3);
+  el.serie.classList.toggle('chaud', etat.serie >= 3);
 
   const pct = etat.total ? Math.round((etat.correct / etat.total) * 100) : 0;
   el.jaugeBarre.style.width = `${pct}%`;
@@ -400,9 +489,9 @@ function majStats(animer = false) {
     : 'Précision : —';
 
   if (animer) {
-    el.statCorrect.classList.remove('pop');
-    void el.statCorrect.offsetWidth; // relance l'animation
-    el.statCorrect.classList.add('pop');
+    el.serie.classList.remove('pop');
+    void el.serie.offsetWidth; // relance l'animation
+    el.serie.classList.add('pop');
   }
 }
 
@@ -410,24 +499,29 @@ function majStats(animer = false) {
 
 // Insère un trait d'union à l'endroit du curseur, sans changer de clavier.
 function insererTiret() {
-  if (el.reponse.disabled) return;
   const valeur = el.reponse.value;
   const debut = el.reponse.selectionStart ?? valeur.length;
   const fin = el.reponse.selectionEnd ?? debut;
   el.reponse.value = `${valeur.slice(0, debut)}-${valeur.slice(fin)}`;
+  ajusterHauteur();
   el.reponse.focus();
   el.reponse.setSelectionRange(debut + 1, debut + 1);
 }
 
-// mousedown : on garde le focus (et donc le curseur) dans le champ.
-el.tiret.addEventListener('mousedown', (e) => e.preventDefault());
 el.tiret.addEventListener('click', insererTiret);
 
 /* ---------- Entrées ---------- */
 
 el.valider.addEventListener('click', valider);
 el.reveler.addEventListener('click', reveler);
-el.reponse.addEventListener('keydown', (e) => { if (e.key === 'Enter') valider(); });
+
+// Entrée valide (et n'insère jamais de saut de ligne dans le champ).
+el.reponse.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.shiftKey) return;
+  e.preventDefault();
+  valider();
+});
+
 // Entrée passe au nombre suivant même si le champ n'a plus le focus.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || el.jeu.hidden || etat.phase !== 'resolu') return;
