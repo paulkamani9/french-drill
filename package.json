@@ -5,7 +5,7 @@
   "description": "Dictée de nombres en français : écris les nombres en toutes lettres.",
   "type": "module",
   "scripts": {
-    "test": "node test/converter.test.mjs",
+    "test": "node test/converter.test.mjs && node test/parcours.test.mjs",
     "dev": "npx http-server -p 8123 ."
   }
 }
