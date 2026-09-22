@@ -259,6 +259,28 @@ body {
 }
 @keyframes apparait { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: none; } }
 
+/* Champ de saisie + touche « - » */
+.saisie { display: flex; gap: 10px; align-items: stretch; }
+
+.touche {
+  flex: 0 0 62px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--texte);
+  background: rgba(255, 255, 255, .08);
+  border: 2px solid var(--bord);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .35);
+  transition: transform .1s ease, border-color .18s ease, background .18s ease;
+}
+.touche:hover { border-color: var(--cyan); background: rgba(34, 224, 255, .14); }
+.touche:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
+.touche:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.touche:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
 .reponse {
   width: 100%;
   font-family: 'Fredoka', sans-serif;

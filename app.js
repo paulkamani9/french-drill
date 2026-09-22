@@ -21,6 +21,7 @@ const el = {
   min: $('min'), max: $('max'), demarrer: $('btn-demarrer'),
   nombre: $('nombre'), reponse: $('reponse'), verdict: $('verdict'),
   valider: $('btn-valider'), reveler: $('btn-reveler'), retour: $('btn-retour'),
+  tiret: $('btn-tiret'),
   carteJeu: $('carte-jeu'), plageActive: $('plage-active'),
   statCorrect: $('stat-correct'), statTotal: $('stat-total'),
   statSerie: $('stat-serie'), statRecord: $('stat-record'),
@@ -129,6 +130,7 @@ function nouveauNombre() {
   el.carteJeu.classList.remove('faux', 'juste');
   el.reponse.value = '';
   el.reponse.disabled = false;
+  el.tiret.disabled = false;
   el.reveler.disabled = false;
   el.valider.textContent = 'Vérifier';
   el.valider.classList.remove('suivant');
@@ -154,6 +156,7 @@ function valider() {
     }
     etat.phase = 'resolu';
     el.reponse.disabled = true;
+    el.tiret.disabled = true;
     el.reveler.disabled = true;
     el.carteJeu.classList.add('juste');
     el.verdict.innerHTML = `<p class="bandeau ok">${bravo()}</p>`;
@@ -173,6 +176,7 @@ const bravo = () => BRAVOS[Math.floor(Math.random() * BRAVOS.length)];
 function afficherErreur(saisie, attendu, indexFaute) {
   etat.phase = 'resolu';
   el.reponse.disabled = true;
+  el.tiret.disabled = true;
   el.reveler.disabled = true;
   el.carteJeu.classList.remove('juste');
   el.carteJeu.classList.add('faux');
@@ -204,6 +208,7 @@ function reveler() {
   etat.serie = 0;
   etat.phase = 'resolu';
   el.reponse.disabled = true;
+  el.tiret.disabled = true;
   el.reveler.disabled = true;
   el.carteJeu.classList.add('faux');
   el.verdict.innerHTML = `
@@ -235,6 +240,23 @@ function majStats(animer = false) {
     el.statCorrect.classList.add('pop');
   }
 }
+
+/* ---------- Touche « - » ---------- */
+
+// Insère un trait d'union à l'endroit du curseur, sans changer de clavier.
+function insererTiret() {
+  if (el.reponse.disabled) return;
+  const valeur = el.reponse.value;
+  const debut = el.reponse.selectionStart ?? valeur.length;
+  const fin = el.reponse.selectionEnd ?? debut;
+  el.reponse.value = `${valeur.slice(0, debut)}-${valeur.slice(fin)}`;
+  el.reponse.focus();
+  el.reponse.setSelectionRange(debut + 1, debut + 1);
+}
+
+// mousedown : on garde le focus (et donc le curseur) dans le champ.
+el.tiret.addEventListener('mousedown', (e) => e.preventDefault());
+el.tiret.addEventListener('click', insererTiret);
 
 /* ---------- Entrées ---------- */
 
